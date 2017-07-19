@@ -1,10 +1,12 @@
-FROM ubuntu:14.04
+FROM ubuntu:latest
 
 MAINTAINER Kevin Littlejohn <kevin@littlejohn.id.au>, \
     Alex Fraser <alex@vpac-innovations.com.au>
 
 # Install base dependencies.
 WORKDIR /root
+RUN sed -i 's/# deb-src/deb-src/g' /etc/apt/sources.list
+RUN sed -i 's/archive.ubuntu/jp.archive.ubuntu/g' /etc/apt/sources.list
 RUN export DEBIAN_FRONTEND=noninteractive TERM=linux \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -12,6 +14,7 @@ RUN export DEBIAN_FRONTEND=noninteractive TERM=linux \
         curl \
         dpkg-dev \
         iptables \
+        logrotate \
         libssl-dev \
         patch \
         squid-langpack \
@@ -24,14 +27,17 @@ RUN export DEBIAN_FRONTEND=noninteractive TERM=linux \
 # is needed because sometimes the `configure` script is busy when building in
 # Docker after autoconf sets its mode +x.
 COPY squid3.patch mime.conf /root/
-RUN cd squid3-3.?.? \
+RUN cd squid3-3.?.* \
     && patch -p1 < /root/squid3.patch \
     && export NUM_PROCS=`grep -c ^processor /proc/cpuinfo` \
     && (dpkg-buildpackage -b -j${NUM_PROCS} \
         || dpkg-buildpackage -b -j${NUM_PROCS}) \
     && DEBIAN_FRONTEND=noninteractive TERM=linux dpkg -i \
-        ../squid3-common_3.?.?-?ubuntu?.?_all.deb \
-        ../squid3_3.?.?-?ubuntu?.?_*.deb \
+        ../squid-common_3.?.*-?ubuntu?.?_all.deb \
+        ../squid_3.?.*-?ubuntu?.?_*.deb \
+    && ln -s /etc/squid /etc/squid3 \
+    && ln -s /usr/share/squid /usr/share/squid3 \
+    && ln -s /var/log/squid /var/log/squid3 \
     && mkdir -p /etc/squid3/ssl_cert \
     && cat /root/mime.conf >> /usr/share/squid3/mime.conf
 
