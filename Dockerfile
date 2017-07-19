@@ -41,10 +41,10 @@ RUN cd squid3-3.?.* \
     && mkdir -p /etc/squid3/ssl_cert \
     && cat /root/mime.conf >> /usr/share/squid3/mime.conf
 
-COPY squid.conf /etc/squid3/squid.conf
+COPY squid.conf /etc/squid/squid.conf
 COPY start_squid.sh /usr/local/bin/start_squid.sh
 
-VOLUME /var/spool/squid3 /etc/squid3/ssl_cert
+VOLUME /var/spool/squid /etc/squid/ssl_cert
 EXPOSE 3128 3129 3130
 
 CMD ["/usr/local/bin/start_squid.sh"]

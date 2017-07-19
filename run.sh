@@ -100,8 +100,8 @@ run () {
   # so clients can get the CA certificate.
   CID=$(sudo docker run --privileged -d \
         --name ${CONTAINER_NAME} \
-        --volume="${CACHEDIR}":/var/spool/squid3 \
-        --volume="${CERTDIR}":/etc/squid3/ssl_cert \
+        --volume="${CACHEDIR}":/var/spool/squid \
+        --volume="${CERTDIR}":/etc/squid/ssl_cert \
         --publish=3128:3128 \
         ${CONTAINER_NAME})
   IPADDR=$(sudo docker inspect --format '{{ .NetworkSettings.IPAddress }}' ${CID})
